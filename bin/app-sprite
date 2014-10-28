@@ -1,0 +1,15 @@
+#!/usr/bin/php
+<?
+
+$directory = "/var/wooly/application/apps/static/htdocs/static/images/base/sprites/2x/";
+
+if ($handle = opendir($directory)) {
+    while (false !== ($entry = readdir($handle))) {
+        if ($entry != "." && $entry != "..") {
+            $cmd = "convert $directory/$entry -geometry 50% $directory/../1x/$entry";
+            echo "Working on $entry\n";
+            `$cmd`;
+        }
+    }
+    closedir($handle);
+}

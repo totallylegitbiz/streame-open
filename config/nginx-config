@@ -1,0 +1,120 @@
+client_max_body_size    15M;
+client_body_buffer_size 15M;
+
+log_format combined_hostname  '$remote_addr - $remote_user [$time_local]  '
+                  '"$request_method $scheme://$host$request_uri" $status $body_bytes_sent '
+                  '"$http_referer" "$http_user_agent"';
+
+server {
+
+  listen 80 default;
+  #listen 443 ssl;
+  #ssl_certificate      /etc/nginx/ssl/streame.pem;
+  #ssl_certificate_key  /etc/nginx/ssl/streame.key;
+
+  set $appbase "/var/www/streame";
+
+  #Default app, we'll be overriding this.
+  set $appname default;
+
+  access_log  /var/log/nginx/streame-access.log combined_hostname;
+  error_log   /var/log/nginx/streame-error.log; # debug;
+
+  ############################
+  #
+  # Connection settings
+  #
+  ############################
+
+  keepalive_requests 5;
+  keepalive_timeout  15;
+
+  ############################
+  #
+  # Kill www
+  #
+  ############################
+
+  if ($host ~* '^www\.(.*)$' ) {
+    set $new_host $1;
+    rewrite  ^/(.*)$  http://$new_host/$1 permanent;
+  }
+
+  root $appbase/application/public;
+
+  #When requesting /api rewrite it to the core
+  location  /api {
+    rewrite ^/api(.*)$ /api.php?$1 last;
+  }
+
+  ############################
+  #
+  # gzip
+  #
+  ############################
+
+  gzip on;
+
+  gzip_http_version 1.1;
+  gzip_comp_level 1;
+  gzip_proxied any;
+  gzip_types text/plain text/css text/javascript application/x-javascript application/json application/xhtml+xml text/xml application/xml application/xml+rss image/svg+xml;
+  gzip_min_length 1k;
+  gzip_vary on;
+  gzip_disable "MSIE [1-6]\.(?!.*SV1)";
+
+  ############################
+  #
+  # PHP Handler
+  #
+  ############################
+
+  location ~ .php$ {
+    fastcgi_pass    unix:/var/run/php5-fpm.sock;
+    fastcgi_index   index.php;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    include fastcgi_params;
+  }
+
+  ############################
+  #
+  # Static files
+  #
+  ############################
+
+  location /static {
+    if ($request_filename ~ \.(eot|ttf|svg|woff)$)  {
+      add_header Access-Control-Allow-Origin *;
+    }
+
+    # For revisioning purposes
+    if (!-e $request_filename) {
+      rewrite ^/static/([a-zA-Z0-9]+)/(.*)$ /static/$2 last;
+    }
+
+    gzip_http_version 1.0;
+    expires max;
+  }
+
+  ############################
+  #
+  #  Main Location, if the file doesn't exist send to Kohana
+  #
+  ############################
+
+  location ~* \.(eot|ttf|woff)$ {
+    add_header Access-Control-Allow-Origin *;
+  }
+
+  location / {
+    #Remove trailing slashes
+    rewrite ^/(.*)?/$ $scheme://$host/$1 permanent;
+
+    if (!-e $request_filename) {
+      rewrite ^(.*)$ /index.php?$1 last;
+    }
+
+    index index.php index.html index.htm;
+  }
+
+}

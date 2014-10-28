@@ -1,0 +1,2 @@
+<?
+include 'classes/Controller.php';

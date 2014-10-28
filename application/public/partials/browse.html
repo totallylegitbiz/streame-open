@@ -1,0 +1,26 @@
+<div class="post-list" infinite-scroll="loadNext()" infinite-scroll-distance="2">
+  <section post="{{post.id}}" data-ng-repeat="post in posts">
+    <div class="picture" style="background-image:url({{post.main_image}});"></div>
+    <div class="grade"></div>
+    <div class="vote">
+      <div class="up"   ng-click="action('site_post', post.id, 'like')"></div>
+      <div class="down" ng-click="action('site_post', post.id, 'dislike')"></div>
+    </div>
+    
+    <div class="info">
+      <div class="date">{{post.ago}}</div>
+      <a class="title" ng-click="action('site_post', post.id, 'view')" href="/p/{{post.id}}"><h2 ng-bind-html="post.title"></h2></a>
+      <div class="site">{{post.site.nice_url}}</div>
+      <ul class="topics" >
+        <li data-ng-repeat="post_topic in post.topics | orderBy:'-score' | limitTo: 5" ng-hide="{{post_topic.score < .4}}">
+          <a href="/t/{{post_topic.topic.id}}" target="_new" ng-bind-html="post_topic.topic.topic"></a> 
+          {{post_topic.score}}
+          <div class="vote">
+            <div class="up"   ng-click="action('topic', post_topic.topic.id, 'like')"></div>
+            <div class="down" ng-click="action('topic', post_topic.topic.id, 'dislike')"></div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+</div>

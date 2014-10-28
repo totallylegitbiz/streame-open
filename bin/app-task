@@ -1,0 +1,11 @@
+#!/usr/bin/php
+<?php
+
+require __DIR__ . '/../application/bootstrap.php';
+
+if (PHP_SAPI != 'cli') {
+  die('ONLY CLI');
+}
+        
+        
+Minion_Task::factory(Minion_CLI::options())->execute();

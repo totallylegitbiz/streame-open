@@ -1,0 +1,22 @@
+CREATE TABLE `site_posts` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `site_id` int(11) unsigned DEFAULT NULL,
+  `slug` varchar(255) NOT NULL,
+  `title` varchar(1024) NOT NULL,
+  `blurb` text,
+  `body` text,
+  `body_orig` text,
+  `permalink` varchar(1024) NOT NULL,
+  `url` varchar(1024) NOT NULL,
+  `main_image_id` int(11) unsigned DEFAULT NULL,
+  `published` datetime DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `status` enum('ACTIVE','REMOVED','ERROR') NOT NULL DEFAULT 'ACTIVE',
+  `score` int(11) unsigned NOT NULL DEFAULT '0',
+  `score_multiplier` float unsigned NOT NULL DEFAULT '0',
+  `uid` varchar(400) DEFAULT NULL,
+  `body_page_html` text,
+  `body_readability` text,
+  PRIMARY KEY (`id`),
+  KEY `site_id` (`site_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8

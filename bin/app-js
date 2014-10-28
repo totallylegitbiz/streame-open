@@ -1,0 +1,266 @@
+#!/usr/bin/env ruby
+
+# Needs jslint
+# sudo npm install coffee-script jslint r.js -g
+# sudo apt-get -y install librb-inotify-ruby
+
+# You know what this does 
+require 'rb-inotify'
+require 'find'
+require 'tempfile'
+require 'fileutils'
+require 'optparse'
+require 'pathname'
+
+#Get rid of that wonderful error
+trap("SIGINT") {exit!}
+
+default_source_path  = "/var/wooly/application/apps/static/htdocs/static/js"
+
+##############################################################
+#
+# Command line option parsing
+#
+##############################################################
+
+$options = {}
+ 
+optparse = OptionParser.new do|opts|
+ # Set a banner, displayed at the top
+ # of the help screen.
+ opts.banner = "Usage: app-js [options]"
+ 
+ # Define the $options, and what they do
+#  $options[:jslint] = false
+#  opts.on( '-l', '--jslint', 'Run jslint' ) do
+#    $options[:jslint] = true
+#  end
+ 
+#  $options[:closure] = false
+#  opts.on( '-c', '--closure', 'Run Closure Compression' ) do
+#    $options[:closure] = true
+#  end
+
+ 
+ $options[:compress] = true
+ opts.on( '-n', '--nocompress', 'Do not run YUI Compression' ) do
+   $options[:compress] = false
+ end
+ 
+ $options[:jssource] = default_source_path
+ opts.on( '-r', '--source PATH', 'Javascript source root' ) do|path|
+   $options[:jssource] = path
+ end
+#  
+#  $options[:jstarget] = default_target_path
+#  opts.on( '-t', '--target PATH', 'Javascript target path' ) do|file|
+#    $options[:jstarget] = file
+#  end
+ 
+ # This displays the help screen, all programs are
+ # assumed to have this option.
+ opts.on( '-h', '--help', 'Display this screen' ) do
+   puts opts
+   exit
+ end
+end
+
+#Do the actual parsing
+optparse.parse!
+
+##############################################################
+#
+# Does the work
+#
+##############################################################
+
+# def build_js (path, fp)
+# 
+#   dirs = Array.new;
+#   out  = "";
+#   
+#   Dir.foreach(path) do |f|
+#   
+#     full = path + '/' + f
+#     
+#     if File::directory?(full) then
+#       if f != '.' && f != '..' then
+#         dirs << full
+#       end
+#     elsif File.extname(full) == '.js' then  
+#     
+#       from_fp = File.new(full, "r");
+#       
+#       fp.write("\n/* " + full + " */\n");
+#       
+#       while (line = from_fp.gets)
+#         fp.write(line);
+#       end
+#     end
+#   end
+#   
+#   dirs.each do |f| 
+#     build_js(f, fp);
+#   end
+#   
+# end
+
+##############################################################
+#
+# Extends String
+#
+##############################################################
+
+class String
+  def red; colorize(self, "\e[1m\e[31m"); end
+  def green; colorize(self, "\e[1m\e[32m"); end
+  def dark_green; colorize(self, "\e[32m"); end
+  def yellow; colorize(self, "\e[1m\e[33m"); end
+  def blue; colorize(self, "\e[1m\e[34m"); end
+  def dark_blue; colorize(self, "\e[34m"); end
+  def pur; colorize(self, "\e[1m\e[35m"); end
+  def white; colorize(self, "\e[1m\e[37m"); end
+  def colorize(text, color_code)  "#{color_code}#{text}\e[0m" end
+end
+
+##############################################################
+#
+# Nicer logger
+#
+##############################################################
+
+class Logger 
+  def Logger.log (t)
+    puts Time.now.strftime("%c").yellow + " - " + t
+  end
+  def Logger.info ( t )
+    Logger.log('INFO'.white + ' - ' + t.white)
+  end
+  def Logger.error ( t )
+    Logger.log('ERROR'.red + ' - ' + t.red)
+  end
+end
+
+##############################################################
+#
+# The Processor
+#
+##############################################################
+
+class Processor
+
+  def initialize(source_path)
+  
+    Logger.info("Reading: " + source_path);
+    @source_path     = source_path    
+  end
+  
+  def process_coffee(file)
+    
+    Logger.info('Processing: ' + file);    
+    new_file = File.dirname(file) + '/' + File.basename(file, File.extname(file)) + '.js';
+
+    
+    r = `coffee -l -p --compile #{file} > #{new_file}`;s=$?.success?
+    
+    
+    if !s then
+     Logger.error("Error compiling from coffee script: " + r.strip);
+    else
+      
+      if $options[:compress] then
+        Logger.info("Compressing...")
+        #@r = `java -jar /var/wooly/bin/yui-compressor.jar #{new_file} -o #{new_file} `;s=$?.success? 
+        @r = `java -jar /var/wooly/bin/compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js #{new_file} --js_output_file #{new_file}.compiler && mv #{new_file}.compiler #{new_file}`;s=$?.success? 
+        #Logger.error("Error compiling from coffee script: " + r.strip);
+      end
+      
+    end
+  
+  end
+  
+  def require_build() 
+    
+    Logger.info("Require building..")
+    @r = `cd /var/wooly/application/apps/static/htdocs/static/js/ && r.js -o baseUrl=. name=main out=built.js optimize=none`;s=$?.success? 
+    
+    if $options[:compress] then
+      new_file = "/var/wooly/application/apps/static/htdocs/static/js/built.js"
+      @r = `java -jar /var/wooly/bin/compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js #{new_file} --js_output_file #{new_file}.compiler && mv #{new_file}.compiler #{new_file}`;s=$?.success? 
+    end
+  end
+    
+  def process_dir(dir)
+    
+    dirs           = []
+    post_dirs      = []
+    t_dirs         = []
+    
+    Dir.foreach(dir) do |file|
+      t_dirs << file
+    end
+    
+    t_dirs.sort.each do |file|
+    
+      next if file == '.' || file == '..' 
+      
+      if File.ftype(dir + '/' +file) == 'directory' then
+ 
+        if file.match(/^\_/) then
+          post_dirs << file;
+        else
+          dirs << file;
+        end
+        
+      else 
+        if File.extname(file) == '.coffee' then
+          process_coffee(dir + '/' + file) 
+        end
+      end
+      
+    end
+    
+    #Do everything without a _ first
+    dirs.each {|file| process_dir(dir + '/' + file)}
+    #Not the _
+    post_dirs.each {|file| process_dir(dir + '/' + file)}
+
+  end
+
+  def process
+    process_dir @source_path     
+    require_build()
+    Logger.info("Done.")
+  end  
+  
+end
+
+
+##############################################################
+#
+# Let's get to work!
+#
+##############################################################
+
+
+p = Processor.new($options[:jssource])
+p.process 
+
+
+##############################################################
+#
+# The notifier stuffz
+#
+##############################################################
+
+notifier = INotify::Notifier.new
+  
+notifier.watch($options[:jssource], :moved_to, :create, :modify, :delete, :moved_from,:recursive) do |event|
+  if (!File.exists?(event.absolute_name) || File.size(event.absolute_name) > 0 ) && File.extname(event.absolute_name) == '.coffee' then
+    Logger.info("Changed file: " + event.name);
+    p.process_coffee(event.absolute_name);
+  end
+end
+
+notifier.run
+

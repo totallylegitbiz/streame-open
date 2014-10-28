@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# apt-get install -y rubygems
+# gem install compass
+
+APP_NAME=$1
+
+if [ "$APP_NAME" = "" ]; then
+  APP_NAME=static;
+  echo "Defaulting to static"
+fi
+
+APP_BASE=/var/wooly/application/apps/$APP_NAME
+
+if [ -d $APP_BASE ]
+  then 
+    echo "Starting..";
+  else 
+    echo "App base does not exist: $APP_BASE";
+  exit;
+fi
+
+CSS_PATH=$APP_BASE/htdocs/static/css         
+IMAGE_PATH=$APP_BASE/htdocs/static/images     
+
+#Cleanup
+rm -Rf $CSS_PATH/compiled/* ;
+compass watch $CSS_PATH/source --time -s compressed --sass-dir $CSS_PATH/source --css-dir $CSS_PATH/compiled --images-dir ../../images --relative-assets
+rm -Rf $CSS_PATH/source/.sass-cache

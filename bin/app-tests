@@ -1,0 +1,6 @@
+#!/bin/bash
+
+TEST_NAME=$1
+
+cd /usr/src/www/totallylegit/application/tests/
+phpunit --bootstrap teststrap.php --colors $TEST_NAME

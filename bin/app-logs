@@ -1,0 +1,3 @@
+#!/bin/bash
+
+tail -f /var/lib/streame/logs/debug.log -n 100

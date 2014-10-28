@@ -1,0 +1,214 @@
+@import url(http://fonts.googleapis.com/css?family=Rosarivo:400,400italic);
+/* line 1, ../source/partials/_reset.scss */
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  /*   font-size: 100%; */
+  font: inherit;
+  vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+/* line 12, ../source/partials/_reset.scss */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+
+/* line 16, ../source/partials/_reset.scss */
+body {
+  line-height: 1;
+}
+
+/* line 20, ../source/partials/_reset.scss */
+ol, ul, li {
+  list-style: none;
+}
+
+/* line 24, ../source/partials/_reset.scss */
+blockquote, q {
+  quotes: none;
+}
+
+/* line 29, ../source/partials/_reset.scss */
+blockquote:before, blockquote:after {
+  content: '';
+  content: none;
+}
+
+/* line 36, ../source/partials/_reset.scss */
+q:before, q:after {
+  content: '';
+  content: none;
+}
+
+/* line 42, ../source/partials/_reset.scss */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* @import "partials/_normalize.scss"; */
+/*
+@import "partials/_html5b.scss";
+*/
+/* line 5, ../source/www.scss */
+*, *:before, *:after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* line 9, ../source/www.scss */
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+}
+
+/* line 15, ../source/www.scss */
+a, a:link {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* line 20, ../source/www.scss */
+#streame-pane {
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+}
+
+/* line 25, ../source/www.scss */
+header {
+  position: fixed;
+  height: 44px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
+  z-index: 10;
+}
+/* line 36, ../source/www.scss */
+header h1 {
+  background-image: url("../../images/logo.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  text-indent: -100%;
+  overflow: hidden;
+  height: 35px;
+  margin-top: 4px;
+}
+
+/* line 49, ../source/www.scss */
+#container {
+  margin-top: 50px;
+  overflow: hidden;
+  height: 100%;
+}
+
+/* line 57, ../source/www.scss */
+.post-list section {
+  position: relative;
+  width: 33.3333%;
+  float: left;
+  padding-right: 1px;
+  padding-bottom: 1px;
+}
+/* line 64, ../source/www.scss */
+.post-list section .picture {
+  background-position: center center;
+  padding: 30%;
+  width: 100%;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+/* line 72, ../source/www.scss */
+.post-list section .grade {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.8) 100%);
+  position: absolute;
+  top: 60%;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+/* line 81, ../source/www.scss */
+.post-list section > .vote {
+  position: absolute;
+  width: 20px;
+  right: 5px;
+  top: 5px;
+}
+/* line 87, ../source/www.scss */
+.post-list section > .vote .up {
+  background-color: green;
+  height: 20px;
+}
+/* line 92, ../source/www.scss */
+.post-list section > .vote .down {
+  background-color: red;
+  height: 20px;
+}
+/* line 98, ../source/www.scss */
+.post-list section .info {
+  position: absolute;
+  bottom: 3%;
+  right: 0;
+  left: 0;
+  padding: 10px;
+  padding-bottom: 2px;
+  color: #fff;
+}
+/* line 107, ../source/www.scss */
+.post-list section .info .date {
+  color: #aaa;
+  font-size: 80%;
+}
+/* line 113, ../source/www.scss */
+.post-list section .info .title h2 {
+  font-family: 'Rosarivo', serif;
+  font-size: 105%;
+}
+/* line 123, ../source/www.scss */
+.post-list section .info ul.topics {
+  /*         display:none; */
+  margin-top: 5px;
+}
+/* line 126, ../source/www.scss */
+.post-list section .info ul.topics li {
+  font-size: 50%;
+  font-family: Arial, Helvetica, sans-serif;
+  float: right;
+  color: #999;
+  background-color: #eee;
+  border-radius: 4px;
+  padding: 3px;
+  margin: 1px;
+}
+/* line 136, ../source/www.scss */
+.post-list section .info ul.topics li a {
+  float: left;
+}
+/* line 139, ../source/www.scss */
+.post-list section .info ul.topics li .vote {
+  background-color: red;
+  float: left;
+}
+/* line 142, ../source/www.scss */
+.post-list section .info ul.topics li .vote > div {
+  height: 10px;
+  width: 10px;
+  float: left;
+}
+/* line 147, ../source/www.scss */
+.post-list section .info ul.topics li .vote > div.up {
+  background-color: green;
+}
+/* line 150, ../source/www.scss */
+.post-list section .info ul.topics li .vote > div.down {
+  background-color: red;
+}
